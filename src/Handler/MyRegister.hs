@@ -17,7 +17,9 @@ import Yesod.Form.Bootstrap3 (BootstrapFormLayout (..), renderBootstrap3)
 getMyRegisterR :: Handler Html
 getMyRegisterR = do
     (formWidget, formEnctype) <- generateFormPost registerForm
-    let formErrors = Nothing
+
+    let errorMessage = Nothing :: Maybe Text
+
     defaultLayout $ do
         setTitle "Register Now"
         $(widgetFile "registerpage")
@@ -25,16 +27,14 @@ getMyRegisterR = do
 postMyRegisterR :: Handler Html
 postMyRegisterR = do
     ((result, formWidget), formEnctype) <- runFormPost registerForm
-    print result
     newUserCreated <- registerNewUser result
-    print newUserCreated
     
-    if newUserCreated then redirect ProfileR else goBackWithErrors formWidget formEnctype
+    case newUserCreated of
+        UserCreatedSuccessfully -> redirect ProfileR
+        _ -> goBackWithErrors formWidget formEnctype $ getRegisterErrorMessage newUserCreated
     where
-        formErrors = Just True
-        
-        goBackWithErrors :: Widget -> Enctype -> Handler Html
-        goBackWithErrors formWidget formEnctype = defaultLayout $ do
+        goBackWithErrors :: Widget -> Enctype -> Maybe Text -> Handler Html
+        goBackWithErrors formWidget formEnctype errorMessage = defaultLayout $ do
             setTitle "Register Now"
             $(widgetFile "registerpage")
 
@@ -51,3 +51,10 @@ registerForm = renderBootstrap3 BootstrapBasicForm $ RegisterForm
         passwordSettings = getFieldSettings "Password" "Enter Password" True
         retryPasswordSettings = getFieldSettings "Retry password" "Enter Retry Password" True
         fullnameSettings = getFieldSettings "Full Name" "Enter Full name" True
+
+getRegisterErrorMessage :: CreateUserResult -> Maybe Text
+getRegisterErrorMessage result = case result of
+    BadFormData -> Just "Invalid form data"
+    PasswordsDoNotMatch -> Just "Passwords do not match"
+    UsernameAlreadyInUse -> Just "This username is already taken"
+    _ -> Nothing

@@ -15,7 +15,6 @@ import Yesod.Form.Bootstrap3 (BootstrapFormLayout (..), renderBootstrap3)
 apiKey :: Text
 apiKey = "nRR3RWtHOfgnC1rvK0lZCQx5n8VAl6MyM2TLExm7vtQ1Uxw3GLfDFhlb"
 
-
 getMyLoginR :: Handler Html
 getMyLoginR = do
     (formWidget, formEnctype) <- generateFormPost loginForm
@@ -29,7 +28,10 @@ postMyLoginR = do
     ((result, formWidget), formEnctype) <- runFormPost loginForm
     validationResult <- validateLoginParams result
 
-    if validationResult then redirect ProfileR else goBackWithErrors formWidget formEnctype
+    case validationResult of
+        LoginSuccessful -> redirect ProfileR
+        BadCredentials -> goBackWithErrors formWidget formEnctype
+
     where
         formErrors = Just True
         

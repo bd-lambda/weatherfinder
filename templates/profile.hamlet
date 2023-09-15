@@ -1,10 +1,15 @@
 <div .ui.container>
+  <p .text-right>
+    Hey #{fromMaybe "Unnamed" $ userFullname user}!
 
-    <h1>
-      Access granted!
+  <div .row>
+    <div .col-lg-12 .text-center>
+      <form .form-horizontal method=post action=/ enctype=#{formEnctype}>
+        ^{formWidget}
 
-    <p>
-      This page is protected and access is allowed only for authenticated users.
+        $maybe msg <- errorMessage
+          <div class="alert alert-danger" role="alert" >
+            #{msg}
 
-    <p>
-      Your data is protected with us <strong><span class="username">#{userIdent user}</span></strong>!
+        <button .btn.btn-primary type="submit">
+          Look up weather

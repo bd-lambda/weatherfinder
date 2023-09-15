@@ -16,4 +16,8 @@ data RegisterForm = RegisterForm
     , rPassword :: Text
     , rRetryPassword :: Text } deriving Show
 
-data CreateUserResult = PasswordsDoNotMatch | UsernameAlreadyInUse | UserCreatedSuccessfully
+data CreateUserResult = BadFormData | PasswordsDoNotMatch | UsernameAlreadyInUse | UserCreatedSuccessfully
+
+data LoginResult = LoginSuccessful | BadCredentials
+
+newtype WeatherForm = WeatherForm { wCity :: Text }
