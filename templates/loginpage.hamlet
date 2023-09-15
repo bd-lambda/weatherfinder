@@ -9,7 +9,7 @@
                     <div class="alert alert-danger" role="alert" >
                         Login failed! Probably invalid credentials
                 <p>
-                    <a href="/">Create your account now
+                    <a href=@{MyRegisterR}>Create your account now
 
                 <button .btn.btn-primary type="submit">
                     Login!

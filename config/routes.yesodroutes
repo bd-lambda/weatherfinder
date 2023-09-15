@@ -8,7 +8,9 @@
 /robots.txt RobotsR GET
 
 / HomeR GET
+/logout MyLogoutR GET
 /login MyLoginR GET POST
+/register MyRegisterR GET POST
 
 
 /profile ProfileR GET

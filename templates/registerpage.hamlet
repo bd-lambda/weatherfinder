@@ -1,0 +1,17 @@
+<div .container>
+    <div .row>
+        <div .col-lg-12>
+            <h1 #start>Create your account now
+            <form .form-horizontal method=post action=@{MyRegisterR} enctype=#{formEnctype}>
+                ^{formWidget}
+                
+                $maybe _ <- formErrors
+                    <div class="alert alert-danger" role="alert" >
+                        Error! Passwords probably do not match
+                <p>
+                    <a href=@{MyLoginR}>Already have an accout? Login
+
+                <button .btn.btn-primary type="submit">
+                    Register!
+
+

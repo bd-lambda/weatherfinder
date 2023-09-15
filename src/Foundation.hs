@@ -4,7 +4,6 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE ViewPatterns #-}
-{-# LANGUAGE ExplicitForAll #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE InstanceSigs #-}
 
@@ -128,7 +127,7 @@ instance Yesod App where
                     }
                 , NavbarRight $ MenuItem
                     { menuItemLabel = "Logout"
-                    , menuItemRoute = AuthR LogoutR
+                    , menuItemRoute = MyLogoutR
                     , menuItemAccessCallback = isJust muser
                     }
                 ]
@@ -168,10 +167,12 @@ instance Yesod App where
     isAuthorized RobotsR _ = return Authorized
     isAuthorized (StaticR _) _ = return Authorized
     isAuthorized MyLoginR _ = return Authorized
+    isAuthorized MyRegisterR _ = return Authorized
 
     -- the profile route requires that the user is authenticated, so we
     -- delegate to that function
     isAuthorized ProfileR _ = isAuthenticated
+    isAuthorized MyLogoutR _ = isAuthenticated
 
     -- This function creates static content files in the static folder
     -- and names them based on a hash of their content. This allows
@@ -257,6 +258,7 @@ instance YesodAuth App where
             Nothing -> Authenticated <$> insert User
                 { userIdent = credsIdent creds
                 , userPassword = "test123"
+                , userFullname = Nothing
                 , userCreatedAt = now
                 }
 
