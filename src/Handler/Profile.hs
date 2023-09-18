@@ -64,12 +64,6 @@ postProfileR = do
             $(widgetFile "profile")
 
 
-toCity :: FormResult WeatherForm -> City
-toCity result = case result of
-    FormSuccess (WeatherForm city) -> City city
-    _ -> City ""
-
-
 lookupWeatherForm :: Form WeatherForm
 lookupWeatherForm = renderBootstrap3 BootstrapBasicForm $ WeatherForm
     <$> areq textField citySettings Nothing
