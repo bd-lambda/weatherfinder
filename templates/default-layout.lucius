@@ -71,3 +71,20 @@
 #message {
     margin-bottom: 40px;
 }
+
+.card {
+  display: block;
+  padding: 10px;
+  border-radius: 10px;
+  border: solid 1px lightgrey;
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+.strong {
+  font-weight: bold;
+}
+
+.lookup-form {
+  margin-bottom: 10px;
+}

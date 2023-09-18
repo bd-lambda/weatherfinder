@@ -2,14 +2,42 @@
   <p .text-right>
     Hey #{fromMaybe "Unnamed" $ userFullname user}!
 
+  <div .lookup-form>
+    <div .row>
+      <div .col-lg-12 .text-center>
+        <form .form-horizontal method=post action=@{ProfileR} enctype=#{formEnctype}>
+          ^{formWidget}
+
+          $maybe msg <- errorMessage
+            <div class="alert alert-danger" role="alert" >
+              #{msg}
+
+          <button .btn.btn-primary type="submit">
+            Look up weather
+
   <div .row>
-    <div .col-lg-12 .text-center>
-      <form .form-horizontal method=post action=/ enctype=#{formEnctype}>
-        ^{formWidget}
+    <div .col-lg-12>
+      $maybe WeatherJSONResult {..} <- weatherDetails
+        <div .card .card-body>
+          <h4 .text-center>Weather Details
+          <p .strong>Location
+          <p>#{name location}
+          <p .strong>Region
+          <p>#{region location}
+          <p .strong>Country
+          <p>#{country location}
+          <p .strong>Temperature (Celsius)
+          <p>#{tempC current}
+          <p .strong>Temperature (Farenheit)
+          <p>#{tempF current}
+          <p .strong>Feels Like (Celsius)
+          <p>#{feelsLikeC current}
+          <p .strong>Feels Like (Farenheit)
+          <p>#{feelsLikeF current}
+          <p .strong>Wind (mph/kph)
+          <p>#{windMPH current}/#{windKPH current}
+      $nothing 
+        <div class="alert alert-danger" role="alert" >
+          Look up failed, there might be a problem with our system or the city is invalid
 
-        $maybe msg <- errorMessage
-          <div class="alert alert-danger" role="alert" >
-            #{msg}
 
-        <button .btn.btn-primary type="submit">
-          Look up weather

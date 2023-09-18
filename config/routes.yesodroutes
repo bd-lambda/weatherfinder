@@ -13,4 +13,4 @@
 /register MyRegisterR GET POST
 
 
-/profile ProfileR GET
+/profile ProfileR GET POST

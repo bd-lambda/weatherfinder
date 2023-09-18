@@ -24,6 +24,7 @@ getMyRegisterR = do
         setTitle "Register Now"
         $(widgetFile "registerpage")
 
+
 postMyRegisterR :: Handler Html
 postMyRegisterR = do
     ((result, formWidget), formEnctype) <- runFormPost registerForm
@@ -39,7 +40,6 @@ postMyRegisterR = do
             $(widgetFile "registerpage")
 
 
-
 registerForm :: Form RegisterForm
 registerForm = renderBootstrap3 BootstrapBasicForm $ RegisterForm 
     <$> areq textField fullnameSettings Nothing
@@ -51,6 +51,7 @@ registerForm = renderBootstrap3 BootstrapBasicForm $ RegisterForm
         passwordSettings = getFieldSettings "Password" "Enter Password" True
         retryPasswordSettings = getFieldSettings "Retry password" "Enter Retry Password" True
         fullnameSettings = getFieldSettings "Full Name" "Enter Full name" True
+
 
 getRegisterErrorMessage :: CreateUserResult -> Maybe Text
 getRegisterErrorMessage result = case result of
