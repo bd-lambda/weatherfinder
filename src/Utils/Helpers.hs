@@ -13,6 +13,7 @@ import Utils.Types
 import Network.HTTP.Simple
 
 
+-- this ideally would be an env variable and it would be stored in our settings or config file
 apiKey :: ByteString
 apiKey = "5d9cd22fe1934a5fbe5190325231509"
 
@@ -119,16 +120,25 @@ lookupCity city = do
         if status == 200
             then do
                 let jsonBody = getResponseBody response
-                print jsonBody
                 pure $ LookupSuccess jsonBody
             else pure LookupFailed 
         ) `catch` (\(SomeException _) -> pure LookupFailed)
 
 
-getWeatherDetails :: City -> IO (Maybe WeatherJSONResult)
+-- I know Goose hates that I am returning a tuple here but i'm lazy, would refactor in v2
+getWeatherDetails :: City -> IO (Maybe WeatherJSONResult, Maybe Text)
 getWeatherDetails city = do
     lookupResult <- lookupCity city
     case lookupResult of
-        LookupFailed -> pure Nothing
-        CityNotFound -> pure Nothing
-        LookupSuccess weatherDetails -> pure $ Just weatherDetails
+        LookupFailed -> pure (Nothing, Just "Failed to look up the city, might be an api problem")
+        CityNotFound -> pure (Nothing, Just "Couldn't find weather info for this city")
+        LookupSuccess weatherDetails -> pure (Just weatherDetails, Nothing)
+
+
+-- Converting from string to WeatherJSONResult does not work even though the types derives
+-- Read and Show
+-- toWeatherHistoryItem :: WeatherQuery -> WeatherHistoryItem
+-- toWeatherHistoryItem weatherQueryResult = WeatherHistoryItem 
+--     { whiCity = City $ weatherQueryCity weatherQueryResult
+--     , whiCreatedAt = weatherQueryCreatedAt weatherQueryResult
+--     , whiWeatherDetails = read $ weatherQueryWeatherInfo weatherQueryResult :: WeatherJSONResult}

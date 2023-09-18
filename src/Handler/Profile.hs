@@ -3,6 +3,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE OverloadedRecordDot #-}
 module Handler.Profile where
 
 import Import
@@ -14,11 +15,16 @@ import Yesod.Form.Bootstrap3 (BootstrapFormLayout (..), renderBootstrap3)
 getProfileR :: Handler Html
 getProfileR = do
     (formWidget, formEnctype) <- generateFormPost lookupWeatherForm
+    (_, user) <- requireAuthPair
+    searchHistory <- fetchHistory user
+
     let errorMessage = Nothing :: Maybe Text
         weatherDetails = Nothing :: Maybe WeatherJSONResult
 
     defaultLayout $ do
-        (_, user) <- requireAuthPair
+        let timeToInt :: UTCTime -> Int
+            timeToInt utctime = floor $ utctDayTime utctime :: Int
+
         setTitle . toHtml $ userIdent user <> "'s User page"
         $(widgetFile "profile")
 
@@ -26,20 +32,34 @@ getProfileR = do
 postProfileR :: Handler Html
 postProfileR = do
     ((result, formWidget), formEnctype) <- runFormPost lookupWeatherForm
+    (_, user) <- requireAuthPair
+    searchHistory <- fetchHistory user
     
     let validationResult = validateFormData result
-    let errorMessage = "Could not find weather for city"
+    let errorText = "City is invalid, length must be longer than 2 characters"
 
     case validationResult of
         ValidCity city -> do 
-            weatherDetails <- liftIO $ getWeatherDetails city
-            renderView Nothing weatherDetails formWidget formEnctype
-        InvalidCity -> renderView (Just errorMessage) Nothing formWidget formEnctype
+            (weatherDetails, errorMessage) <- liftIO $ getWeatherDetails city
+            storeSearch user city weatherDetails
+            renderView errorMessage weatherDetails user searchHistory formWidget formEnctype
+        InvalidCity -> renderView (Just errorText) Nothing user searchHistory formWidget formEnctype
 
     where 
-        renderView :: Maybe Text -> Maybe WeatherJSONResult -> Widget -> Enctype -> Handler Html
-        renderView errorMessage weatherDetails formWidget formEnctype = defaultLayout $ do
-            (_, user) <- requireAuthPair
+        -- couldn't figure out how to share a function in the template 
+        timeToInt :: UTCTime -> Int
+        timeToInt utctime = floor $ utctDayTime utctime :: Int
+
+        -- horrible argument list, should use data type for this
+        renderView 
+            :: Maybe Text 
+            -> Maybe WeatherJSONResult 
+            -> User
+            -> [WeatherQuery]
+            -> Widget 
+            -> Enctype 
+            -> Handler Html
+        renderView errorMessage weatherDetails user searchHistory formWidget formEnctype = defaultLayout $ do
             setTitle $ toHtml $ fromMaybe "Success" errorMessage
             $(widgetFile "profile")
 
@@ -55,3 +75,14 @@ lookupWeatherForm = renderBootstrap3 BootstrapBasicForm $ WeatherForm
     <$> areq textField citySettings Nothing
     where 
         citySettings = getFieldSettings "" "Enter City" True
+
+storeSearch :: User -> City -> Maybe WeatherJSONResult -> Handler ()
+storeSearch user (City city) mresult = do 
+    now <- liftIO getCurrentTime
+    case mresult of
+        Just result -> runDB $ insert_ $ WeatherQuery user.userIdent city (show result) now
+        Nothing -> pure ()
+
+fetchHistory :: User -> Handler [WeatherQuery]
+fetchHistory user = (fmap . fmap) entityVal $ runDB $ selectList [WeatherQueryUsername ==. user.userIdent] []
+

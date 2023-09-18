@@ -2,18 +2,17 @@
   <p .text-right>
     Hey #{fromMaybe "Unnamed" $ userFullname user}!
 
-  <div .lookup-form>
-    <div .row>
-      <div .col-lg-12 .text-center>
-        <form .form-horizontal method=post action=@{ProfileR} enctype=#{formEnctype}>
-          ^{formWidget}
+  <div .row .lookup-form>
+    <div .col-lg-12 .text-center>
+      <form .form-horizontal method=post action=@{ProfileR} enctype=#{formEnctype}>
+        ^{formWidget}
 
-          $maybe msg <- errorMessage
-            <div class="alert alert-danger" role="alert" >
-              #{msg}
+        <button .btn.btn-primary type=submit>
+          Look up weather
 
-          <button .btn.btn-primary type="submit">
-            Look up weather
+  $maybe msg <- errorMessage
+    <div .alert .alert-danger role=alert >
+      #{msg}
 
   <div .row>
     <div .col-lg-12>
@@ -36,8 +35,13 @@
           <p>#{feelsLikeF current}
           <p .strong>Wind (mph/kph)
           <p>#{windMPH current}/#{windKPH current}
-      $nothing 
-        <div class="alert alert-danger" role="alert" >
-          Look up failed, there might be a problem with our system or the city is invalid
 
+    <div .col-lg-12>
+      <p .strong>Search History
+      $forall historyItem <- searchHistory
+        <a .block data-toggle=collapse href=#collapse#{timeToInt $ weatherQueryCreatedAt historyItem} aria-expanded=false>
+          You searched for #{weatherQueryCity historyItem} on #{show $ weatherQueryCreatedAt historyItem}
+        <div .collapse #collapse#{timeToInt $ weatherQueryCreatedAt historyItem}>
+          <div .card .card-body>
+            #{weatherQueryWeatherInfo historyItem}
 

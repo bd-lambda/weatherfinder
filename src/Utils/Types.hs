@@ -39,17 +39,17 @@ data CurrentWeatherPayload = CurrentWeatherPayload
     , feelsLikeF :: Float
     , windMPH :: Float
     , windKPH :: Float
-    } deriving Show
+    } deriving (Show, Read)
 
 data LocationPayload = LocationPayload
     { name :: Text
     , region :: Text
     , country :: Text
-    } deriving Show
+    } deriving (Show, Read)
 
 data WeatherJSONResult = WeatherJSONResult 
     { location :: LocationPayload
-    , current :: CurrentWeatherPayload} deriving Show
+    , current :: CurrentWeatherPayload} deriving (Show, Read)
 
 
 instance FromJSON CurrentWeatherPayload where
@@ -85,3 +85,8 @@ instance FromJSON WeatherJSONResult where
 
 
 
+data WeatherHistoryItem = WeatherHistoryItem 
+    { whiCity :: City
+    , whiCreatedAt :: UTCTime
+    , whiWeatherDetails :: WeatherJSONResult
+    }  

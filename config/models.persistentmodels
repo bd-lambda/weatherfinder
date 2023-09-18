@@ -11,9 +11,10 @@ User
     deriving Show
 
 WeatherQuery
-    username String
-    city String
+    username Text
+    city Text
     weatherInfo String
     createdAt UTCTime
+    deriving Typeable
     deriving Show
 
